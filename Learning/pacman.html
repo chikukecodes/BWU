@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pac-Man Style Game</title>
+  <style>
+    body { background: black; display: flex; justify-content: center; }
+    canvas { background: #000; display: block; margin: 20px; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 20;
+    const rows = canvas.height / gridSize;
+    const cols = canvas.width / gridSize;
+
+    // Create map with dots
+    let map = [];
+    for (let r = 0; r < rows; r++) {
+      map[r] = [];
+      for (let c = 0; c < cols; c++) {
+        map[r][c] = 1; // 1 = dot
+      }
+    }
+
+    // Pac-Man position
+    let pacman = { x: 1, y: 1, dx: 0, dy: 0 };
+
+    // Draw everything
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw dots
+      ctx.fillStyle = "white";
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (map[r][c] === 1) {
+            ctx.beginPath();
+            ctx.arc(c * gridSize + gridSize/2, r * gridSize + gridSize/2, 3, 0, Math.PI*2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Draw Pac-Man
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(pacman.x * gridSize + gridSize/2, pacman.y * gridSize + gridSize/2, gridSize/2, 0.25*Math.PI, 1.75*Math.PI);
+      ctx.lineTo(pacman.x * gridSize + gridSize/2, pacman.y * gridSize + gridSize/2);
+      ctx.fill();
+    }
+
+    // Update game state
+    function update() {
+      pacman.x += pacman.dx;
+      pacman.y += pacman.dy;
+
+      // Wrap around edges
+      if (pacman.x < 0) pacman.x = cols-1;
+      if (pacman.x >= cols) pacman.x = 0;
+      if (pacman.y < 0) pacman.y = rows-1;
+      if (pacman.y >= rows) pacman.y = 0;
+
+      // Eat dot
+      if (map[pacman.y][pacman.x] === 1) {
+        map[pacman.y][pacman.x] = 0;
+      }
+    }
+
+    // Keyboard controls
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowUp") { pacman.dx = 0; pacman.dy = -1; }
+      if (e.key === "ArrowDown") { pacman.dx = 0; pacman.dy = 1; }
+      if (e.key === "ArrowLeft") { pacman.dx = -1; pacman.dy = 0; }
+      if (e.key === "ArrowRight") { pacman.dx = 1; pacman.dy = 0; }
+    });
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
